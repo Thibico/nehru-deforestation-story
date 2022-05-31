@@ -1,0 +1,35 @@
+<div id="deforestation-area-chart"></div>
+
+{{#each content.sections}}
+<section>
+    <h1 class="story-text section-title">{{this.section_title}}</h1>
+    {{#each this.content}}
+        {{#ifEquals this.type 'text'}}
+            <div class="story-text">
+                <p>{{this.value}}</p>
+            </div>
+        {{/ifEquals}}
+
+        {{#ifEquals this.type 'sticky_overlay'}}
+            <div id="{{this.value.scroll_id}}" class="scroll-container">
+                <div class="scroll__graphic">
+                    <div class="chart sticky">
+                    {{#each this.value.images}}
+                        <img src="{{basepath}}assets/images/{{this.src}}" style="opacity:0" data-step="{{this.step}}"/>
+                    {{/each}}
+                    </div>
+
+
+                </div>
+                <div class="scroll__text">
+                    {{#each this.value.text}}
+                        <div class="step" data-step="{{@index}}">
+                            <p>{{{this}}}</p>
+                        </div>
+                    {{/each}}
+                </div>
+            </div>
+        {{/ifEquals}}
+    {{/each}}
+</section>
+{{/each}}   

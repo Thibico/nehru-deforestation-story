@@ -1,0 +1,18 @@
+{
+	"title": "Cambodia's Land Grab Endangers People, Forests, and the Climate",
+	"description": "Story description goes here",
+	"site": "https://www.thibi.co/",
+	"siteName": "siteName",
+	"url": "storyURL",
+	"keywords": "keywords",
+	"imgFacebook": "imgFacebook.jpg",
+	"imgTwitter": "imgTwitter.jpg",
+	"authors": [
+		{
+			"name": "Nehru Pry",
+			"url": "",
+			"twitterHandle": ""
+		}
+	],
+	"lorem": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis mollis neque sit amet sollicitudin vehicula. Maecenas fringilla mi non lacus mattis elementum. Curabitur dignissim faucibus justo."
+}

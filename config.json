@@ -1,0 +1,21 @@
+{
+  "google": {
+    "doc": [
+      {
+        "id": "10hykKL8MirDtbai-8gXAMJgtGy4-9SSzrfj6gmlspPw",
+        "filepath": "data/content.json"
+      },
+      {
+        "id": "10hykKL8MirDtbai-8gXAMJgtGy4-9SSzrfj6gmlspPw",
+        "filepath": "src/assets/data/content.json"
+      }
+    ],
+    "sheet": [
+      {
+        "id": "",
+        "gid": "",
+        "filepath": ""
+      }
+    ]
+  }
+}
