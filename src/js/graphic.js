@@ -22,74 +22,83 @@ function activateFluxGrid(containerId) {
 	const options = {
 		height: 400,
 		width: 912,
-		cellSize: 10,
-		cellPadding: 1,
-		firstColor: 'limegreen',
-		secondColor: 'darkslategray'
+		cellSize: 30,
+		cellPadding: 0,
+		rowSize: 30,
+		colSize: 12,
+		bgColor: '#111111'
 	};
+	const cellSize = Math.floor(options.width / (options.rowSize + options.cellPadding));
 	var $container = d3.select(`#${containerId}`);
 	var $svg = $container.append('svg');
 	var $grid = $svg.append('g');
-	console.log(options);
-    console.log(`${options.width}px`);
-	$svg.attr('width', `${options.width}px`)
-		.attr('height', `${options.height}px`)
-		.style('background-color', '#eeeeee')
+	const width = (cellSize + options.cellPadding) * options.rowSize;
+	const height = (cellSize + options.cellPadding) * options.colSize;
+
+	$svg.attr('width', `${width}px`)
+	    .attr('height', `${height}px`)
 		.style('display', 'block')
+		.style('background-color', options.bgColor)
+		.style('background-image', 'url("assets/images/aerial_forest.jpg")')
 		.style('margin', 'auto');
+
     
-	var $prevCell = $grid.append('rect')
-	    .classed('cell', true)
-		.classed('is-active', true)
-		.attr('x', options.cellPadding)
-		.attr('y', options.cellPadding)
-		.attr('width', options.cellSize)
-		.attr('height', options.cellSize)
-		.attr('fill', options.firstColor);
+		$grid.selectAll('g')
+		.data(d3.range(options.colSize))
+		.enter()
+		.append('g')
+		.attr('transform', (d,i) => {
+			let yOffset = options.cellPadding * (i+1) + cellSize * i;
+			return `translate(0,${yOffset})`
+		})
+		.selectAll('rect')
+		.data(d => d3.range(options.rowSize))
+		.enter()
+        .append('rect')
+		.attr('width', cellSize)
+		.attr('height', cellSize)
+		.attr('transform', (d, i) => {
+			let xOffset = options.cellPadding * (i+1) + cellSize * i;
+			return `translate(${xOffset},0)`
+		})
+		.attr('fill', options.bgColor)
+		.attr('fill-opacity', 0)
+		.classed('cell', true)
+		.classed('is-active', true);
 
-    for (
-		let i=options.cellPadding;
-		i < options.width;
-		i = i + options.cellPadding + options.cellSize
-	)
-	 {
-		var $currCell = $prevCell.clone()
-			.attr('x', `${i}`);
-		$prevCell = $currCell;
-	}
+	$svg.append('rect')
+		.classed('comparison-box', true)
+		.attr('height', cellSize*3)
+		.attr('width', cellSize*3)
+		.attr('x', width/2 - 1.5*cellSize)
+		.attr('y', height/2 - 1.5*cellSize)
+		.attr('fill-opacity', 0)
+		.attr('stroke-width', 3)
+		.attr('stroke', 'yellow');
 
-	var $firstRow = $grid.selectAll('.cell');
-    
-	for (
-		let i=options.cellPadding+options.cellSize; 
-		i < options.height - options.cellSize;
-		i = i + options.cellPadding + options.cellSize
-	) {
-		$firstRow.clone()
-		.attr('transform', `translate(0,${i})`);
-	}
+	
 
-	function changeColor(prob) {
-		return function () {
-			var color = '';
-			if (Math.random() < prob) {
-				color = options.secondColor;
-				d3.select(this)
-					.classed('is-active', false)
-					.transition()
-					.duration(500)
-					.attr('fill', color);
-			}
-		}
-	}
-    var $activeCells;
+	var $activeCells;
 	$grid.selectAll('.cell').on('click', () => {
 		$activeCells = $grid.selectAll(".is-active");
 		$activeCells.each(changeColor(0.2));
 	});
 
-	console.log('num cells', $grid.selectAll('.cell').size());
 
+	function changeColor(prob) {
+		return function () {
+			if (Math.random() < prob) {
+				d3.select(this)
+					.classed('is-active', false)
+					.transition()
+					.duration(500)
+					.attr('fill', options.bgColor)
+					.attr('fill-opacity', 1);
+
+			}
+		}
+	}
+   
 }
 
 function activateStickyOverlay(containerId) {
@@ -152,15 +161,35 @@ function activateStickyOverlay(containerId) {
 		var stepData = +d3.select(response.element).attr('data-step');
 	
 		$chart.select('p').text(stepData);
-		stickyOverlayInfo.images.forEach((d,i) => {
+		stickyOverlayInfo.images.forEach((d,i,arr) => {
 			const t = d3.transition()
 				.duration(250)
 				.ease(d3.easeLinear);
+
+			const stepCutoffs = arr.map(d => +d.step)
+				.reduce((prev,curr) => {
+					if (prev.length > 0) {
+						prev[prev.length -1].push(curr);
+					}
+					prev.push([curr]);
+					return prev;
+				}, Array());
+
+			//console.log(stepCutoffs, stepData, i);
+	
 		   
 			
-			if (stepData === +d.step) {
+			if (
+					(
+						stepData >= stepCutoffs[i][0] &&
+						stepData <= stepCutoffs[i][stepCutoffs[i].length -1]
+					)
+				) {
 				$images
-					.filter((d,imgIdx) => (i === imgIdx))
+					.filter((d,imgIdx) => {
+						console.log("inside", i, imgIdx);
+						return i === imgIdx;
+					})
 					.transition(t)
 					.style('opacity', '1');
 				$images
