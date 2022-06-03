@@ -46,6 +46,6 @@ function init() {
 
 //graphic.d3Test();
 graphic.activateStickyOverlay('deforestation_and_concessions');
-
-graphic.activateFluxGrid('deforestation-area-chart');
+graphic.activateStaticMapbox('elc_map');
+graphic.activateFluxGrid('deforestation_area_chart');
 init();

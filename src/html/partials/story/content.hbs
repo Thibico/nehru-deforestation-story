@@ -1,4 +1,4 @@
-<div id="deforestation-area-chart"></div>
+
 
 {{#each content.sections}}
 <section>
@@ -28,6 +28,30 @@
                         </div>
                     {{/each}}
                 </div>
+            </div>
+        {{/ifEquals}}
+        {{#ifEquals this.type 'progress_scrolly'}}
+            <div id="{{this.value.scroll_id}}" class="scroll-container">
+                <div class="scroll__graphic">
+                    <div class="chart sticky">
+                    </div>
+                </div>
+                <div class="scroll__text">
+                </div>
+            </div>
+        {{/ifEquals}}
+        {{#ifEquals this.type 'static_mapbox'}}
+            <div class="static-mapbox-container">
+                <div id="{{this.value.map_id}}"></div>
+                <div class='map-overlay' id='features'><h2>Cambodian Land Concessions</h2><div id='pd'><p>Insert a message!</p></div></div>
+                <div class='map-overlay' id='legend'></div>
+            </div>
+        {{/ifEquals}}
+        {{#ifEquals this.type 'static_mapbox'}}
+            <div class="static-mapbox-container">
+                <div id="{{this.value.map_id}}"></div>
+                <div class='map-overlay' id='features'><h2>Cambodian Land Concessions</h2><div id='pd'><p>Insert a message!</p></div></div>
+                <div class='map-overlay' id='legend'></div>
             </div>
         {{/ifEquals}}
     {{/each}}

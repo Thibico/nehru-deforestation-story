@@ -1,5 +1,6 @@
 /* global d3 */
 import scrollama from 'scrollama';
+import mapboxgl from 'mapbox-gl';
 
 const data = require('../assets/data/content.json');
 const stickyOverlayInfoArr = data.sections
@@ -21,7 +22,7 @@ function d3Test() {
 function activateFluxGrid(containerId) {
 	const options = {
 		height: 400,
-		width: 912,
+		width: 1000,
 		cellSize: 30,
 		cellPadding: 0,
 		rowSize: 30,
@@ -29,7 +30,10 @@ function activateFluxGrid(containerId) {
 		bgColor: '#111111'
 	};
 	const cellSize = Math.floor(options.width / (options.rowSize + options.cellPadding));
-	var $container = d3.select(`#${containerId}`);
+	var $container = d3.select(`#${containerId}`)
+		.select('.scroll__graphic')
+		.style('background-color', 'rgb(255,255,255,0)')
+		.select('.chart');
 	var $svg = $container.append('svg');
 	var $grid = $svg.append('g');
 	const width = (cellSize + options.cellPadding) * options.rowSize;
@@ -101,9 +105,22 @@ function activateFluxGrid(containerId) {
    
 }
 
+function activateStaticMapbox(mapId) {
+	mapboxgl.accessToken = 'pk.eyJ1IjoidGhpYmktbHVtaW4iLCJhIjoiY2wzd25iZGdnMGJhcDNqbW11YjE3dHB3bSJ9.OJAc_-pM0gYlnF95F0RLWw';
+	var map = new mapboxgl.Map({
+		container: mapId, // container ID
+		style: 'mapbox://styles/thibi-lumin/cl3wo5akm000p14mlzku00y1j/draft', // style URL
+		zoom: 9, // starting zoom
+		center: { lon: 105.46641, lat: 12.85326 },
+		zoom: 6.02,
+		pitch: 17.50,
+		bearing: 0.00
+	});
+
+
+}
+
 function activateStickyOverlay(containerId) {
-
-
 	// using d3 for convenience, and storing a selected elements
 	var $container = d3.select(`#${containerId}`);
 	var $graphic = $container.select('.scroll__graphic');
@@ -115,11 +132,9 @@ function activateStickyOverlay(containerId) {
 	// Get the scrolly info from ArchieML JSON
 	const stickyOverlayInfo = stickyOverlayInfoArr
 	.filter( (d) => (d.value.scroll_id === containerId))[0].value;
-	console.log("stickyOverlayInfo", stickyOverlayInfo);
 
 	// initialize the scrollama
 	var scroller = scrollama();
-	console.log(content.sections);
 
 	// resize function to set dimensions on load and on page resize
 	function handleResize() {
@@ -174,10 +189,7 @@ function activateStickyOverlay(containerId) {
 					prev.push([curr]);
 					return prev;
 				}, Array());
-
-			//console.log(stepCutoffs, stepData, i);
 	
-		   
 			
 			if (
 					(
@@ -187,7 +199,6 @@ function activateStickyOverlay(containerId) {
 				) {
 				$images
 					.filter((d,imgIdx) => {
-						console.log("inside", i, imgIdx);
 						return i === imgIdx;
 					})
 					.transition(t)
@@ -235,4 +246,4 @@ function activateStickyOverlay(containerId) {
 	init();
 }
 
-export default { init, resize, d3Test, activateStickyOverlay, activateFluxGrid };
+export default { init, resize, d3Test, activateStickyOverlay, activateFluxGrid, activateStaticMapbox};
