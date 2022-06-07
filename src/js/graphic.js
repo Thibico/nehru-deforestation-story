@@ -1,11 +1,13 @@
 /* global d3 */
 import scrollama from 'scrollama';
+import mapboxgl from 'mapbox-gl';
+import helper from './helper';
 
 const data = require('../assets/data/content.json');
 const stickyOverlayInfoArr = data.sections
 	.map( (d) => (d.content))
 	.reduce((prev, curr) => prev.concat(curr))
-	.filter((d) => (d.type === 'sticky_overlay'));
+	.filter((d) => (d.type === 'sticky_overlay' || d.type === 'scrolly_mapbox'));
 
 function resize() { }
 
@@ -18,10 +20,79 @@ function d3Test() {
 	console.log('happy!');
 }
 
+const handleStepEnter = {
+	'image_swap': function (info) {
+		return function (response) {
+			console.log("ENTERED IMAGE FUNC");
+			// response = { element, direction, index }
+			var $step = d3.select(`#${info.scroll_id}`)
+				.select('.scroll__text')
+				.selectAll('.step');
+			var $images = d3.select(`#${info.scroll_id}`)
+				.select('.scroll__graphic')
+				.select('.chart')
+				.selectAll('img');
+				
+			// fade in current step
+			$step.classed('is-active', function (d, i) {
+				return i === response.index;
+			})
+		
+			// update graphic based on step here
+			var stepData = +d3.select(response.element).attr('data-step');
+		
+			info.images.forEach((d,i,arr) => {
+				const t = d3.transition()
+					.duration(250)
+					.ease(d3.easeLinear);
+		
+				const stepCutoffs = arr.map(d => +d.step)
+					.reduce((prev,curr) => {
+						if (prev.length > 0) {
+							prev[prev.length -1].push(curr);
+						}
+						prev.push([curr]);
+						return prev;
+					}, Array());
+		
+				
+				if (
+						(
+							stepData >= stepCutoffs[i][0] &&
+							stepData <= stepCutoffs[i][stepCutoffs[i].length -1]
+						)
+					) {
+					$images
+						.filter((d,imgIdx) => {
+							return i === imgIdx;
+						})
+						.transition(t)
+						.style('opacity', '1');
+					$images
+						.filter((d,imgIdx) => (i !== imgIdx))
+						.transition(t)
+						.style('opacity', '0');
+				}
+			});
+		}
+	},
+
+	'mapbox_scroll': function (map) {
+		return function (response) {
+			console.log("ENTERED MAP FUNC");
+			//map.after('load', () => map.setFilter('elc-1u2udn', filter));
+			if (map.loaded()) {
+				map.setFilter('elc-1u2udn', helper.generateLayerFilter('CROP', ["rubber"]));
+				map.setPaintProperty('elc-1u2udn', 'fill-color', '#fefefe' );
+			}
+		}
+	}
+}
+
 function activateFluxGrid(containerId) {
 	const options = {
 		height: 400,
-		width: 912,
+		width: 1000,
 		cellSize: 30,
 		cellPadding: 0,
 		rowSize: 30,
@@ -29,7 +100,10 @@ function activateFluxGrid(containerId) {
 		bgColor: '#111111'
 	};
 	const cellSize = Math.floor(options.width / (options.rowSize + options.cellPadding));
-	var $container = d3.select(`#${containerId}`);
+	var $container = d3.select(`#${containerId}`)
+		.select('.scroll__graphic')
+		.style('background-color', 'rgb(255,255,255,0)')
+		.select('.chart');
 	var $svg = $container.append('svg');
 	var $grid = $svg.append('g');
 	const width = (cellSize + options.cellPadding) * options.rowSize;
@@ -76,8 +150,6 @@ function activateFluxGrid(containerId) {
 		.attr('stroke-width', 3)
 		.attr('stroke', 'yellow');
 
-	
-
 	var $activeCells;
 	$grid.selectAll('.cell').on('click', () => {
 		$activeCells = $grid.selectAll(".is-active");
@@ -101,9 +173,24 @@ function activateFluxGrid(containerId) {
    
 }
 
-function activateStickyOverlay(containerId) {
+function activateScrollyMapbox(scrollId, mapId) {
+	mapboxgl.accessToken = 'pk.eyJ1IjoidGhpYmktbHVtaW4iLCJhIjoiY2wzd25iZGdnMGJhcDNqbW11YjE3dHB3bSJ9.OJAc_-pM0gYlnF95F0RLWw';
+	var map = new mapboxgl.Map({
+		container: mapId, // container ID
+		style: 'mapbox://styles/thibi-lumin/cl3wo5akm000p14mlzku00y1j/draft', // style URL
+		center: { lon: 105.05764, lat: 12.48046 },
+		zoom: 6.82,
+		pitch: 0.00,
+		bearing: 0.00
+	});
+	map.scrollZoom.disable();
+	map.on('load', () => {
+		console.log('map layer style', map.getLayer('elc-1u2udn'));
+	});
+	activateStickyOverlay(scrollId, handleStepEnter.mapbox_scroll(map));
+}
 
-
+function activateStickyOverlay(containerId, stepEnterFunc) {
 	// using d3 for convenience, and storing a selected elements
 	var $container = d3.select(`#${containerId}`);
 	var $graphic = $container.select('.scroll__graphic');
@@ -111,15 +198,9 @@ function activateStickyOverlay(containerId) {
 	var $text = $container.select('.scroll__text');
 	var $step = $text.selectAll('.step');
 	var $images = $chart.selectAll('img');
-    
-	// Get the scrolly info from ArchieML JSON
-	const stickyOverlayInfo = stickyOverlayInfoArr
-	.filter( (d) => (d.value.scroll_id === containerId))[0].value;
-	console.log("stickyOverlayInfo", stickyOverlayInfo);
 
 	// initialize the scrollama
-	var scroller = scrollama();
-	console.log(content.sections);
+	var scroller = new scrollama();
 
 	// resize function to set dimensions on load and on page resize
 	function handleResize() {
@@ -149,57 +230,7 @@ function activateStickyOverlay(containerId) {
 	}
 
 	// scrollama event handlers
-	function handleStepEnter(response) {
-		// response = { element, direction, index }
-
-		// fade in current step
-		$step.classed('is-active', function (d, i) {
-			return i === response.index;
-		})
-
-		// update graphic based on step here
-		var stepData = +d3.select(response.element).attr('data-step');
-	
-		$chart.select('p').text(stepData);
-		stickyOverlayInfo.images.forEach((d,i,arr) => {
-			const t = d3.transition()
-				.duration(250)
-				.ease(d3.easeLinear);
-
-			const stepCutoffs = arr.map(d => +d.step)
-				.reduce((prev,curr) => {
-					if (prev.length > 0) {
-						prev[prev.length -1].push(curr);
-					}
-					prev.push([curr]);
-					return prev;
-				}, Array());
-
-			//console.log(stepCutoffs, stepData, i);
-	
-		   
-			
-			if (
-					(
-						stepData >= stepCutoffs[i][0] &&
-						stepData <= stepCutoffs[i][stepCutoffs[i].length -1]
-					)
-				) {
-				$images
-					.filter((d,imgIdx) => {
-						console.log("inside", i, imgIdx);
-						return i === imgIdx;
-					})
-					.transition(t)
-					.style('opacity', '1');
-				$images
-					.filter((d,imgIdx) => (i !== imgIdx))
-					.transition(t)
-					.style('opacity', '0');
-			}
-		});
-		
-	}
+	// HANDLESTEPENTER
 
 	function showFirstImage() {
 		$images.filter((d,i) => (i === 0))
@@ -214,20 +245,21 @@ function activateStickyOverlay(containerId) {
 
 		// 2. setup the scrollama instance
 		// 3. bind scrollama event handlers (this can be chained like below)
+		console.log("Set up a scroller at container", containerId, "with func", stepEnterFunc);
 		scroller
 			.setup({
-				container: '#scroll', // our outermost scrollytelling element
+				parent: document.querySelector(`#${containerId} > .scroll__text`), // our outermost scrollytelling element
 				graphic: '.scroll__graphic', // the graphic
 				text: '.scroll__text', // the step container
 				step: '.scroll__text .step', // the step elements
 				offset: 0.75, // set the trigger to be X way down screen
 				debug: false, // display the trigger offset for testing
 			})
-			.onStepEnter(handleStepEnter);
+			.onStepEnter(stepEnterFunc);
 			//.onContainerEnter(handleContainerEnter)
 			//.onContainerExit(handleContainerExit);
-
 		// setup resize event
+		console.log("scroller", scroller);
 		window.addEventListener('resize', handleResize);
 	}
 
@@ -235,4 +267,7 @@ function activateStickyOverlay(containerId) {
 	init();
 }
 
-export default { init, resize, d3Test, activateStickyOverlay, activateFluxGrid };
+export default { init, resize, d3Test, activateStickyOverlay,
+	activateFluxGrid, activateScrollyMapbox, handleStepEnter,
+	stickyOverlayInfoArr
+};
