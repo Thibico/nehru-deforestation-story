@@ -45,7 +45,9 @@ function init() {
 }
 
 //graphic.d3Test();
-graphic.activateStickyOverlay('deforestation_and_concessions');
-graphic.activateStaticMapbox('elc_map');
+graphic.activateStickyOverlay('deforestation_and_concessions',
+  graphic.handleStepEnter.image_swap(graphic.stickyOverlayInfoArr
+  .filter( (d) => (d.value.scroll_id === 'deforestation_and_concessions'))[0].value));
+graphic.activateScrollyMapbox('elc_scrolly', 'elc_map');
 graphic.activateFluxGrid('deforestation_area_chart');
 init();
