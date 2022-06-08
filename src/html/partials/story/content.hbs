@@ -39,10 +39,13 @@
         {{#ifEquals this.type 'progress_scrolly'}}
             <div id="{{this.value.scroll_id}}" class="scroll-container">
                 <div class="scroll__graphic">
-                    <div class="chart sticky">
+                    <div id="{{this.value.graphic_id}}" class="chart sticky">
                     </div>
                 </div>
                 <div class="scroll__text">
+                    <div class="step" data-step="0"><p>The yellow box represents the area of Phnom Penh.</p></div>
+                    <div class="step" data-step="1"><p>Every year, a forest twice the size of Phnom Penh is destroyed</p></div>
+                    <div class="step" data-step="2"><p>Cambodia lost nearly 2.5 million hectares of forest during the last two decades. That's equivalent to 40 times the area of Phnom Penh.</p></div>
                 </div>
             </div>
         {{/ifEquals}}

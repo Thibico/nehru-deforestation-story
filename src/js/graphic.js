@@ -89,50 +89,65 @@ const handleStepEnter = {
 	}
 }
 
-function activateFluxGrid(containerId) {
+function activateFluxGrid(scrollId, graphicId) {
 	const options = {
 		height: 400,
-		width: 1000,
+		width: 800,
 		cellSize: 30,
 		cellPadding: 0,
-		rowSize: 30,
-		colSize: 12,
+		rowSize: 24,
+		colSize: 15,
 		bgColor: '#111111'
 	};
-	const cellSize = Math.floor(options.width / (options.rowSize + options.cellPadding));
-	var $container = d3.select(`#${containerId}`)
+	/*d3.select(`#${scrollId}`)
 		.select('.scroll__graphic')
+		.style('background-color', 'yellow');
+	d3.select(`#${scrollId}`)
+		.select('.scroll__text')
+		.selectAll('.step')
+		.selectAll('p')
 		.style('background-color', 'rgb(255,255,255,0)')
-		.select('.chart');
+		.style('color', 'rgb(0,0,0,0)');*/
+	const cellSize = Math.ceil(window.innerWidth*0.8 / (options.rowSize + options.cellPadding));
+
+	var $container = d3.select(`#${graphicId}`);
 	var $svg = $container.append('svg');
 	var $grid = $svg.append('g');
-	const width = (cellSize + options.cellPadding) * options.rowSize;
-	const height = (cellSize + options.cellPadding) * options.colSize;
+	const width = window.innerWidth;
+	const height = window.innerHeight;
+	const cellWidth = width / options.rowSize;
+	const cellHeight = height / options.colSize;
+	//const width = (cellSize + options.cellPadding) * options.rowSize;
+	//const height = (cellSize + options.cellPadding) * options.colSize;
+	$svg.attr('transform', `translate(${0},${(window.innerHeight - height)/2})`);
 
 	$svg.attr('width', `${width}px`)
 	    .attr('height', `${height}px`)
 		.style('display', 'block')
-		.style('background-color', options.bgColor)
+		//.style('background-color', options.bgColor)
+		// TODO: remove hard-coded background image and replace with dynamic src from content.json
 		.style('background-image', 'url("assets/images/aerial_forest.jpg")')
+		.style('background-position', 'center')
+		.style('background-size', 'cover')
 		.style('margin', 'auto');
 
     
-		$grid.selectAll('g')
+	$grid.selectAll('g')
 		.data(d3.range(options.colSize))
 		.enter()
 		.append('g')
 		.attr('transform', (d,i) => {
-			let yOffset = options.cellPadding * (i+1) + cellSize * i;
+			let yOffset = options.cellPadding * (i+1) + cellHeight * i;
 			return `translate(0,${yOffset})`
 		})
 		.selectAll('rect')
 		.data(d => d3.range(options.rowSize))
 		.enter()
         .append('rect')
-		.attr('width', cellSize)
-		.attr('height', cellSize)
+		.attr('width', cellWidth+1)
+		.attr('height', cellHeight+1)
 		.attr('transform', (d, i) => {
-			let xOffset = options.cellPadding * (i+1) + cellSize * i;
+			let xOffset = options.cellPadding * (i+1) + cellWidth * i;
 			return `translate(${xOffset},0)`
 		})
 		.attr('fill', options.bgColor)
@@ -142,10 +157,10 @@ function activateFluxGrid(containerId) {
 
 	$svg.append('rect')
 		.classed('comparison-box', true)
-		.attr('height', cellSize*3)
-		.attr('width', cellSize*3)
-		.attr('x', width/2 - 1.5*cellSize)
-		.attr('y', height/2 - 1.5*cellSize)
+		.attr('height', cellHeight*3)
+		.attr('width', cellWidth*3)
+		.attr('x', width/2 - 1.5*cellWidth)
+		.attr('y', height/2 - 1.5*cellHeight)
 		.attr('fill-opacity', 0)
 		.attr('stroke-width', 3)
 		.attr('stroke', 'yellow');
@@ -164,12 +179,23 @@ function activateFluxGrid(containerId) {
 					.classed('is-active', false)
 					.transition()
 					.duration(500)
-					.attr('fill', options.bgColor)
-					.attr('fill-opacity', 1);
+					.attr('fill-opacity', 1.0);
 
 			}
 		}
 	}
+
+	var progressToProb = d3.scaleLinear()
+		.domain([0,0.75])
+		.range([0,0.2]);
+
+    activateStickyOverlay(scrollId, ()=>(true), (response)=>{
+		let dataStep = +d3.select(response.element).attr('data-step');
+		if (dataStep === 1) {
+			$activeCells = $grid.selectAll(".is-active");
+			$activeCells.each(changeColor(progressToProb(response.progress)));
+		}
+	});
    
 }
 
@@ -190,7 +216,7 @@ function activateScrollyMapbox(scrollId, mapId) {
 	activateStickyOverlay(scrollId, handleStepEnter.mapbox_scroll(map));
 }
 
-function activateStickyOverlay(containerId, stepEnterFunc) {
+function activateStickyOverlay(containerId, stepEnterFunc, stepProgressFunc=()=>(true)) {
 	// using d3 for convenience, and storing a selected elements
 	var $container = d3.select(`#${containerId}`);
 	var $graphic = $container.select('.scroll__graphic');
@@ -252,10 +278,12 @@ function activateStickyOverlay(containerId, stepEnterFunc) {
 				graphic: '.scroll__graphic', // the graphic
 				text: '.scroll__text', // the step container
 				step: '.scroll__text .step', // the step elements
+				progress: true,
 				offset: 0.75, // set the trigger to be X way down screen
 				debug: false, // display the trigger offset for testing
 			})
-			.onStepEnter(stepEnterFunc);
+			.onStepEnter(stepEnterFunc)
+			.onStepProgress(stepProgressFunc);
 			//.onContainerEnter(handleContainerEnter)
 			//.onContainerExit(handleContainerExit);
 		// setup resize event
