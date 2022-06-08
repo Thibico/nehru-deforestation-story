@@ -768,6 +768,10 @@ header.is-sticky.is-dark .header__toggle.is-visible span svg {
   margin-left: 20%;
   margin-right: 20%;
 }
+.story-image {
+  margin-left: 15%;
+  margin-right: 15%;
+}
 .scroll-container {
   position: relative;
   margin-bottom: 5%;
