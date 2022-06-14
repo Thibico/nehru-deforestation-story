@@ -79,11 +79,26 @@ const handleStepEnter = {
 
 	'mapbox_scroll': function (map) {
 		return function (response) {
-			console.log("ENTERED MAP FUNC");
+			const baseColor = 'darkgreen';
+			const highlightColor = ['coral', '#b14b45'];
+
 			//map.after('load', () => map.setFilter('elc-1u2udn', filter));
 			if (map.loaded()) {
-				map.setFilter('elc-1u2udn', helper.generateLayerFilter('CROP', ["rubber"]));
-				map.setPaintProperty('elc-1u2udn', 'fill-color', '#fefefe' );
+				//map.setFilter('elc-1u2udn', helper.generateLayerFilter('CROP', ["rubber"]));
+				//map.setPaintProperty('elc-1u2udn', 'fill-color', '#00ff44' );
+				//alert(map.getFilter('elc-1u2udn'));
+				if (response.index === 0) {
+					map.setFilter('elc-1u2udn', helper.generateLayerFilter('TYPE', ["elc"]));
+					map.setPaintProperty('elc-1u2udn', 'fill-color', baseColor);
+				} else if (response.index === 1) {
+					//map.setFilter('elc-1u2udn', helper.generateLayerFilter('TYPE', ['elc'], 'OWNERSHIP', ['khmer']));
+					map.setPaintProperty('elc-1u2udn', 'fill-color', ['match', ['get', 'CROP'], ['rubber', 'mrubber'], highlightColor[0], baseColor]);
+					
+				} else {
+					
+					map.setPaintProperty('elc-1u2udn', 'fill-color', ['match', ['get', 'OWNERSHIP'], ['khmer'], highlightColor[1], baseColor]);
+
+				}
 			}
 		}
 	}
@@ -204,13 +219,14 @@ function activateScrollyMapbox(scrollId, mapId) {
 		container: mapId, // container ID
 		style: 'mapbox://styles/thibi-lumin/cl3wo5akm000p14mlzku00y1j/draft', // style URL
 		center: { lon: 105.05764, lat: 12.48046 },
-		zoom: 5.5,
+		zoom: 6.25,
 		pitch: 0.00,
 		bearing: 0.00
 	});
 	map.scrollZoom.disable();
 	map.on('load', () => {
-		console.log('map layer style', map.getLayer('elc-1u2udn'));
+		map.setFilter('elc-1u2udn', helper.generateLayerFilter('TYPE', ["elc"]));
+		map.setPaintProperty('elc-1u2udn', 'fill-color', 'darkgreen');
 	});
 	activateStickyOverlay(scrollId, handleStepEnter.mapbox_scroll(map));
 }
