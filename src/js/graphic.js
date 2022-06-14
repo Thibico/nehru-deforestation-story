@@ -91,12 +91,10 @@ const handleStepEnter = {
 
 function activateFluxGrid(scrollId, graphicId) {
 	const options = {
-		height: 400,
-		width: 800,
 		cellSize: 30,
 		cellPadding: 0,
-		rowSize: 24,
-		colSize: 15,
+		rowSize: 48,
+		colSize: 30,
 		bgColor: '#111111'
 	};
 	/*d3.select(`#${scrollId}`)
@@ -108,8 +106,6 @@ function activateFluxGrid(scrollId, graphicId) {
 		.selectAll('p')
 		.style('background-color', 'rgb(255,255,255,0)')
 		.style('color', 'rgb(0,0,0,0)');*/
-	const cellSize = Math.ceil(window.innerWidth*0.8 / (options.rowSize + options.cellPadding));
-
 	var $container = d3.select(`#${graphicId}`);
 	var $svg = $container.append('svg');
 	var $grid = $svg.append('g');
@@ -154,13 +150,16 @@ function activateFluxGrid(scrollId, graphicId) {
 		.attr('fill-opacity', 0)
 		.classed('cell', true)
 		.classed('is-active', true);
-
+    
+	// Bounding box for comparison
+	const boxHeight = 6;
+	const boxWidth = 6;
 	$svg.append('rect')
 		.classed('comparison-box', true)
-		.attr('height', cellHeight*3)
-		.attr('width', cellWidth*3)
-		.attr('x', width/2 - 1.5*cellWidth)
-		.attr('y', height/2 - 1.5*cellHeight)
+		.attr('height', cellHeight*boxHeight)
+		.attr('width', cellWidth*boxWidth)
+		.attr('x', width/2 - boxWidth/2 *cellWidth)
+		.attr('y', height/2 - boxHeight/2 *cellHeight)
 		.attr('fill-opacity', 0)
 		.attr('stroke-width', 3)
 		.attr('stroke', 'yellow');
@@ -168,7 +167,7 @@ function activateFluxGrid(scrollId, graphicId) {
 	var $activeCells;
 	$grid.selectAll('.cell').on('click', () => {
 		$activeCells = $grid.selectAll(".is-active");
-		$activeCells.each(changeColor(0.2));
+		$activeCells.each(changeColor(0.25));
 	});
 
 
@@ -187,7 +186,7 @@ function activateFluxGrid(scrollId, graphicId) {
 
 	var progressToProb = d3.scaleLinear()
 		.domain([0,0.75])
-		.range([0,0.2]);
+		.range([0,0.25]);
 
     activateStickyOverlay(scrollId, ()=>(true), (response)=>{
 		let dataStep = +d3.select(response.element).attr('data-step');
@@ -205,7 +204,7 @@ function activateScrollyMapbox(scrollId, mapId) {
 		container: mapId, // container ID
 		style: 'mapbox://styles/thibi-lumin/cl3wo5akm000p14mlzku00y1j/draft', // style URL
 		center: { lon: 105.05764, lat: 12.48046 },
-		zoom: 6.82,
+		zoom: 5.5,
 		pitch: 0.00,
 		bearing: 0.00
 	});
