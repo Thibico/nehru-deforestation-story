@@ -765,13 +765,12 @@ header.is-sticky.is-dark .header__toggle.is-visible span svg {
   font-size: 1.75rem;
 }
 .story-text {
-  margin-left: 10%;
-  margin-right: 10%;
+  margin-left: 20%;
+  margin-right: 20%;
 }
 .story-image {
-  margin-left: 0;
-  margin-right: 0;
-  width: 100%;
+  margin-left: 20%;
+  margin-right: 20%;
 }
 .scroll-container {
   position: relative;
