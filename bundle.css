@@ -762,15 +762,28 @@ header.is-sticky.is-dark .header__toggle.is-visible span svg {
   text-align: center;
 }
 .section-title {
-  font-size: 1.75rem;
+  font-size: 1.25rem;
 }
 .story-text {
   margin-left: 20%;
   margin-right: 20%;
 }
+@media only screen and (max-width: 768px) {
+  .story-text {
+    margin-left: 10%;
+    margin-right: 10%;
+  }
+}
 .story-image {
   margin-left: 20%;
   margin-right: 20%;
+}
+@media only screen and (max-width: 768px) {
+  .story-image {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+  }
 }
 .scroll-container {
   position: relative;
@@ -808,8 +821,23 @@ header.is-sticky.is-dark .header__toggle.is-visible span svg {
 .hidden {
   opacity: 0;
 }
+@media only screen and (max-width: 768px) {
+  .sticky-image {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: end;
+        -ms-flex-align: end;
+            align-items: flex-end;
+  }
+}
 .sticky > img {
   position: absolute;
+}
+@media only screen and (max-width: 768px) {
+  .sticky > img {
+    vertical-align: 50%;
+  }
 }
 .mapboxgl-canvas-container {
   height: 100vh;
