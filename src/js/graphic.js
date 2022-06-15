@@ -79,10 +79,11 @@ const handleStepEnter = {
 
 	'mapbox_scroll': function (map) {
 		return function (response) {
-			const baseColor = 'darkgreen';
-			const highlightColor = ['coral', '#b14b45'];
+			const baseColor = '#828d68';
+			const highlightColor = ['#c4746c', '#d2b9b1'];
 
 			//map.after('load', () => map.setFilter('elc-1u2udn', filter));
+			map.on('load', () => map.setPaintProperty('elc-1u2udn', 'fill-color', '#828d68'));
 			if (map.loaded()) {
 				//map.setFilter('elc-1u2udn', helper.generateLayerFilter('CROP', ["rubber"]));
 				//map.setPaintProperty('elc-1u2udn', 'fill-color', '#00ff44' );
@@ -225,8 +226,11 @@ function activateScrollyMapbox(scrollId, mapId) {
 	});
 	map.scrollZoom.disable();
 	map.on('load', () => {
+		map.fitBounds([
+			[107.69050, 14.76553], // northeastern corner
+			[101.67842, 10.33006] // southwestern corner
+		]);
 		map.setFilter('elc-1u2udn', helper.generateLayerFilter('TYPE', ["elc"]));
-		map.setPaintProperty('elc-1u2udn', 'fill-color', 'darkgreen');
 	});
 	activateStickyOverlay(scrollId, handleStepEnter.mapbox_scroll(map));
 }

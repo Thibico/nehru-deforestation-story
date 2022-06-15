@@ -1,14 +1,21 @@
 /* CUSTOM STORY STYLE */
 
 .section-title
-    font-size 1.75rem
+    font-size 1.25rem
 .story-text
     margin-left 20%
     margin-right 20%
+    @media only screen and (max-width: 768px)
+        margin-left 10%
+        margin-right 10%
 
 .story-image
     margin-left 20%
     margin-right 20%
+    @media only screen and (max-width: 768px)
+        margin-left 0
+        margin-right 0
+        width 100%
 
 .scroll-container
     position: relative
@@ -34,21 +41,28 @@
     position: relative
 
 .step > p
-    background-color: rgba(255, 255, 255, 0.9)
-    color: #3b3b3b
-    padding: 1rem
-    text-align: center
-    margin-left: 30%
-    margin-right: 30%
+    background-color rgba(255, 255, 255, 0.9)
+    color #3b3b3b
+    padding 1rem
+    text-align center
+    margin-left 30%
+    margin-right 30%
 
 .step:last-child
-    margin-bottom: 0
+    margin-bottom 0
 
 .hidden
-    opacity: 0
+    opacity 0
+
+.sticky-image
+    @media only screen and (max-width: 768px)
+        display flex
+        align-items flex-end
 
 .sticky > img
-    position: absolute
+    position absolute
+    @media only screen and (max-width: 768px)
+        vertical-align 50%
 
 .mapboxgl-canvas-container
     height: 100vh

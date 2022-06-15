@@ -19,7 +19,7 @@
         {{#ifEquals this.type 'sticky_overlay'}}
             <div id="{{this.value.scroll_id}}" class="scroll-container">
                 <div class="scroll__graphic">
-                    <div class="chart sticky">
+                    <div class="chart sticky sticky-image">
                     {{#each this.value.images}}
                         <img src="{{basepath}}assets/images/{{this.src}}" style="opacity:0" data-step="{{this.step}}"/>
                     {{/each}}
