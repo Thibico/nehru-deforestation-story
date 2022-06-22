@@ -763,6 +763,7 @@ header.is-sticky.is-dark .header__toggle.is-visible span svg {
 }
 .section-title {
   font-size: 1.25rem;
+  font-weight: bold;
 }
 .story-text {
   margin-left: 20%;
