@@ -1,12 +1,12 @@
 {
-	"title": "Cambodia's Land Grab Endangers People, Forests, and the Climate",
-	"description": "Story description goes here",
-	"site": "https://www.thibi.co/",
-	"siteName": "siteName",
+	"title": "Cambodia’s land grab endangers people, forests, and the climate",
+	"description": "When the war in Indochina came to Cambodia, the forest saved Song Pro. At the sound of planes, she and her family hid deep within the its trails and trees, its canopy providing cover from the sights of American bombers. “We were safe in that sacred place,” said the now 60-year-old farmer. But when peace finally returned, Song Pro and her community could not save the forest.",
+	"site": "https://cambojanews.com/",
+	"siteName": "CamboJA News",
 	"url": "storyURL",
 	"keywords": "keywords",
-	"imgFacebook": "imgFacebook.jpg",
-	"imgTwitter": "imgTwitter.jpg",
+	"imgFacebook": "https://thibi.co/nehru-deforestation-story/assets/images/deforestation_graphic_screenshot.png",
+	"imgTwitter": "https://thibi.co/nehru-deforestation-story/assets/images/deforestation_graphic_screenshot.png",
 	"authors": [
 		{
 			"name": "Nehru Pry",

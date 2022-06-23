@@ -6,14 +6,35 @@
     {{#each this.content}}
         {{#ifEquals this.type 'text'}}
             <div class="story-text">
-                <p>{{this.value}}</p>
+                <p>{{{this.value}}}</p>
             </div>
         {{/ifEquals}}
 
+        {{#ifEquals this.type 'methodology'}}
+        <div class="methodology">
+            <h1 class="story-text section-title methodology-title">Methodology</h1>
+            <hr/>
+            <div class="story-text methodology-text"><p>{{{this.value.text}}}</p></div>
+        </div>
+        {{/ifEquals}}
+
         {{#ifEquals this.type 'image'}}
-            <div class="story-image">
-                <img src="{{basepath}}assets/images/{{this.value.src}}"/>
+            {{#ifEquals this.value.illustration 'true'}}
+            <div class="story-image illustration">
+                <img src="{{basepath}}assets/images/{{this.value.src}}" alt="{{this.value.caption}}"/>
+                <div class="image-caption">
+                    <p>{{this.value.caption}}</p>
+                </div>
             </div>
+            {{else}}
+            <div class="story-image">
+                <img src="{{basepath}}assets/images/{{this.value.src}}" alt="{{this.value.caption}}"/>
+                <div class="image-caption">
+                    <p>{{this.value.caption}}</p>
+                </div>
+            </div>
+            {{/ifEquals}}
+            
         {{/ifEquals}}
 
         {{#ifEquals this.type 'sticky_overlay'}}
@@ -29,7 +50,7 @@
                 </div>
                 <div class="scroll__text">
                     {{#each this.value.text}}
-                        <div class="step" data-step="{{@index}}">
+                        <div class="step story-text" data-step="{{@index}}">
                             <p>{{{this}}}</p>
                         </div>
                     {{/each}}
@@ -43,9 +64,9 @@
                     </div>
                 </div>
                 <div class="scroll__text">
-                    <div class="step" data-step="0"><p>The yellow box represents the area of Phnom Penh.</p></div>
-                    <div class="step" data-step="1"><p>Every year, a forest twice the size of Phnom Penh is destroyed</p></div>
-                    <div class="step" data-step="2"><p>Cambodia lost nearly 2.5 million hectares of forest during the last two decades. That's equivalent to 40 times the area of Phnom Penh.</p></div>
+                    <div class="step story-text" data-step="0"><p>This <span class="inline-highlight" style="color:white;background-color:#B92025;">bounding box</span> represents the area of Phnom Penh.</p></div>
+                    <div class="step story-text" data-step="1"><p>Every year, a forest twice the size of Phnom Penh is destroyed</p></div>
+                    <div class="step story-text" data-step="2"><p>Cambodia lost nearly 2.5 million hectares of forest during the last two decades. That's equivalent to 40 times the area of Phnom Penh.</p></div>
                 </div>
             </div>
         {{/ifEquals}}
@@ -62,7 +83,7 @@
                 </div>
                 <div class="scroll__text">
                     {{#each this.value.text}}
-                        <div class="step" data-step="{{@index}}">
+                        <div class="step story-text" data-step="{{@index}}">
                             <p>{{{this}}}</p>
                         </div>
                     {{/each}}

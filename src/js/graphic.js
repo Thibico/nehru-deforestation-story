@@ -80,10 +80,10 @@ const handleStepEnter = {
 	'mapbox_scroll': function (map) {
 		return function (response) {
 			const baseColor = '#828d68';
-			const highlightColor = ['#c4746c', '#d2b9b1'];
+			const highlightColor = ['#243300', '#B14B45'];
 
 			//map.after('load', () => map.setFilter('elc-1u2udn', filter));
-			map.on('load', () => map.setPaintProperty('elc-1u2udn', 'fill-color', '#828d68'));
+			map.on('load', () => map.setPaintProperty('elc-1u2udn', 'fill-color', baseColor));
 			if (map.loaded()) {
 				//map.setFilter('elc-1u2udn', helper.generateLayerFilter('CROP', ["rubber"]));
 				//map.setPaintProperty('elc-1u2udn', 'fill-color', '#00ff44' );
@@ -111,7 +111,8 @@ function activateFluxGrid(scrollId, graphicId) {
 		cellPadding: 0,
 		rowSize: 48,
 		colSize: 30,
-		bgColor: '#111111'
+		bgColor: '#111111',
+		boxColor: '#B92025'
 	};
 	/*d3.select(`#${scrollId}`)
 		.select('.scroll__graphic')
@@ -123,62 +124,87 @@ function activateFluxGrid(scrollId, graphicId) {
 		.style('background-color', 'rgb(255,255,255,0)')
 		.style('color', 'rgb(0,0,0,0)');*/
 	var $container = d3.select(`#${graphicId}`);
-	var $svg = $container.append('svg');
-	var $grid = $svg.append('g');
-	const width = window.innerWidth;
-	const height = window.innerHeight;
-	const cellWidth = width / options.rowSize;
-	const cellHeight = height / options.colSize;
-	//const width = (cellSize + options.cellPadding) * options.rowSize;
-	//const height = (cellSize + options.cellPadding) * options.colSize;
-	$svg.attr('transform', `translate(${0},${(window.innerHeight - height)/2})`);
+	var $svg, $grid;
 
-	$svg.attr('width', `${width}px`)
-	    .attr('height', `${height}px`)
-		.style('display', 'block')
-		//.style('background-color', options.bgColor)
-		// TODO: remove hard-coded background image and replace with dynamic src from content.json
-		.style('background-image', 'url("assets/images/aerial_forest.jpg")')
-		.style('background-position', 'center')
-		.style('background-size', 'cover')
-		.style('margin', 'auto');
+	function redraw() {
+		let isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
 
-    
-	$grid.selectAll('g')
-		.data(d3.range(options.colSize))
-		.enter()
-		.append('g')
-		.attr('transform', (d,i) => {
-			let yOffset = options.cellPadding * (i+1) + cellHeight * i;
-			return `translate(0,${yOffset})`
-		})
-		.selectAll('rect')
-		.data(d => d3.range(options.rowSize))
-		.enter()
-        .append('rect')
-		.attr('width', cellWidth+1)
-		.attr('height', cellHeight+1)
-		.attr('transform', (d, i) => {
-			let xOffset = options.cellPadding * (i+1) + cellWidth * i;
-			return `translate(${xOffset},0)`
-		})
-		.attr('fill', options.bgColor)
-		.attr('fill-opacity', 0)
-		.classed('cell', true)
-		.classed('is-active', true);
-    
-	// Bounding box for comparison
-	const boxHeight = 6;
-	const boxWidth = 6;
-	$svg.append('rect')
-		.classed('comparison-box', true)
-		.attr('height', cellHeight*boxHeight)
-		.attr('width', cellWidth*boxWidth)
-		.attr('x', width/2 - boxWidth/2 *cellWidth)
-		.attr('y', height/2 - boxHeight/2 *cellHeight)
-		.attr('fill-opacity', 0)
-		.attr('stroke-width', 3)
-		.attr('stroke', 'yellow');
+		$container.selectAll("*").remove();
+		$svg = $container.append('svg');
+		$grid = $svg.append('g');
+		const width = window.innerWidth;
+		const height = window.innerHeight;
+		
+		//const width = (cellSize + options.cellPadding) * options.rowSize;
+		//const height = (cellSize + options.cellPadding) * options.colSize;
+		$svg.attr('transform', `translate(${0},${(window.innerHeight - height)/2})`);
+		$svg.attr('width', `${width}px`)
+			.attr('height', `${height}px`)
+			.style('display', 'block')
+			//.style('background-color', options.bgColor)
+			// TODO: remove hard-coded background image and replace with dynamic src from content.json
+			.style('background-image', 'url("assets/images/aerial_forest.jpg")')
+			.style('background-position', 'center')
+			.style('background-size', 'cover')
+			.style('margin', 'auto');
+		
+		var numRows, numCols, cellWidth, cellHeight;
+		if (isMobile) {
+			numRows = options.rowSize/2;
+			numCols = options.colSize*2;
+		} else {
+			numRows = options.rowSize;
+			numCols = options.colSize;
+		}
+		cellWidth = width / numRows;
+		cellHeight = height / numCols;
+		$grid.selectAll('g')
+			.data(d3.range(numCols))
+			.enter()
+			.append('g')
+			.attr('transform', (d,i) => {
+				let yOffset = options.cellPadding * (i+1) + cellHeight * i;
+				return `translate(0,${yOffset})`
+			})
+			.selectAll('rect')
+			.data(d => d3.range(numRows))
+			.enter()
+			.append('rect')
+			.attr('width', cellWidth+1)
+			.attr('height', cellHeight+1)
+			.attr('transform', (d, i) => {
+				let xOffset = options.cellPadding * (i+1) + cellWidth * i;
+				return `translate(${xOffset},0)`
+			})
+			.attr('fill', options.bgColor)
+			.attr('fill-opacity', 0)
+			.classed('cell', true)
+			.classed('is-active', true);
+		
+		// Bounding box for comparison
+		let boxHeight = 6;
+		let boxWidth = 6;
+		/*if (isMobile) {
+			boxHeight = 3;
+			boxWidth = 12;
+		}*/
+		$svg.append('rect')
+			.classed('comparison-box', true)
+			.attr('height', cellHeight*boxHeight)
+			.attr('width', cellWidth*boxWidth)
+			.attr('x', width/2 - boxWidth/2 *cellWidth)
+			.attr('y', height/2 - boxHeight/2 *cellHeight)
+			.attr('fill-opacity', 0)
+			.attr('stroke-width', 10)
+			.attr('stroke', options.boxColor);
+	}
+	redraw();
+	//window.addEventListener("resize", redraw);
+	const resizeObserver = new ResizeObserver(() => {
+		redraw();
+	});
+	resizeObserver.observe(document.body);
+	
 
 	var $activeCells;
 	$grid.selectAll('.cell').on('click', () => {
@@ -193,6 +219,7 @@ function activateFluxGrid(scrollId, graphicId) {
 				d3.select(this)
 					.classed('is-active', false)
 					.transition()
+					.attr('fill', 'black')
 					.duration(500)
 					.attr('fill-opacity', 1.0);
 
@@ -222,8 +249,13 @@ function activateScrollyMapbox(scrollId, mapId) {
 		center: { lon: 105.05764, lat: 12.48046 },
 		zoom: 6.25,
 		pitch: 0.00,
-		bearing: 0.00
+		bearing: 0.00,
+		attributionControl: false
 	});
+	map.addControl(new mapboxgl.AttributionControl({
+		compact: true,
+		position: 'top-left'
+	}));
 	map.scrollZoom.disable();
 	map.on('load', () => {
 		map.fitBounds([

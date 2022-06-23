@@ -45,6 +45,8 @@ function init() {
 }
 
 //graphic.d3Test();
+var resizeObserver = new ResizeObserver(()=>(console.log(window.innerHeight)));
+resizeObserver.observe(document.body);
 graphic.activateStickyOverlay('deforestation_and_concessions',
   graphic.handleStepEnter.image_swap(graphic.stickyOverlayInfoArr
   .filter( (d) => (d.value.scroll_id === 'deforestation_and_concessions'))[0].value));
