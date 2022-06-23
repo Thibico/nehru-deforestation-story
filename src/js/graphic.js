@@ -179,7 +179,8 @@ function activateFluxGrid(scrollId, graphicId) {
 			.attr('fill', options.bgColor)
 			.attr('fill-opacity', 0)
 			.classed('cell', true)
-			.classed('is-active', true);
+			.classed('is-active', true)
+			.classed('is-inactive', false);
 		
 		// Bounding box for comparison
 		let boxHeight = 6;
@@ -188,15 +189,45 @@ function activateFluxGrid(scrollId, graphicId) {
 			boxHeight = 3;
 			boxWidth = 12;
 		}*/
+
+		const boxStroke = 10;
+		const boxLocationX = width/2 - boxWidth/2 *cellWidth;
+		const boxLocationY = height/2 - boxHeight/2 *cellHeight;
 		$svg.append('rect')
 			.classed('comparison-box', true)
 			.attr('height', cellHeight*boxHeight)
 			.attr('width', cellWidth*boxWidth)
-			.attr('x', width/2 - boxWidth/2 *cellWidth)
-			.attr('y', height/2 - boxHeight/2 *cellHeight)
+			.attr('x', boxLocationX)
+			.attr('y', boxLocationY)
 			.attr('fill-opacity', 0)
-			.attr('stroke-width', 10)
-			.attr('stroke', options.boxColor);
+			.attr('stroke-width', boxStroke)
+			.attr('stroke', options.boxColor)
+
+		var $annotation = $svg.append('g')
+			.classed('.annotation', true);
+		var $hectares = $annotation.append('text')
+			.classed('section-title', true)
+			.classed('annotation__hectares', true)
+			.attr('x', boxLocationX)
+			.attr('y', boxLocationY + cellHeight*boxHeight + 4*boxStroke)
+			.style('fill', '#b92025')
+			.style('font-size', '2rem');
+		$annotation.append('text')
+			.classed('section-title', true)
+			.classed('annotation__filler', true)
+			.attr('x', boxLocationX)
+			.attr('y', boxLocationY + cellHeight*boxHeight + 6*boxStroke)
+			.text('hectares lost')
+			.style('font-size', '1rem')
+			.style('fill', '#b92025')
+			.style('visibility', 'hidden');
+		var $year = $annotation.append('text')
+			.classed('section-title', true)
+			.classed('annotation__year', true)
+			.attr('x', boxLocationX)
+			.attr('y', boxLocationY + cellHeight*boxHeight + 8*boxStroke)
+			.style('fill', '#b92025')
+			.style('font-size', '1rem');
 	}
 	redraw();
 	//window.addEventListener("resize", redraw);
@@ -204,39 +235,79 @@ function activateFluxGrid(scrollId, graphicId) {
 		redraw();
 	});
 	resizeObserver.observe(document.body);
-	
 
-	var $activeCells;
-	$grid.selectAll('.cell').on('click', () => {
-		$activeCells = $grid.selectAll(".is-active");
-		$activeCells.each(changeColor(0.25));
-	});
-
-
-	function changeColor(prob) {
+	function changeColor(prob, makeInactive) {
 		return function () {
 			if (Math.random() < prob) {
-				d3.select(this)
-					.classed('is-active', false)
-					.transition()
-					.attr('fill', 'black')
-					.duration(500)
-					.attr('fill-opacity', 1.0);
-
+				if (makeInactive) {
+					d3.select(this)
+						.classed('is-active', false)
+						.classed('is-inactive', true)
+						.transition()
+						.attr('fill', 'black')
+						.duration(500)
+						.attr('fill-opacity', 1.0);
+				} else {
+					d3.select(this)
+						.classed('is-active', true)
+						.classed('is-inactive', false)
+						.transition()
+						.duration(500)
+						.attr('fill-opacity', 0);
+				}
 			}
 		}
 	}
 
-	var progressToProb = d3.scaleLinear()
+	var progressToProb = d3.scalePow()
+		.exponent(2)
 		.domain([0,0.75])
-		.range([0,0.25]);
+		.range([0,1]);
 
-    activateStickyOverlay(scrollId, ()=>(true), (response)=>{
-		let dataStep = +d3.select(response.element).attr('data-step');
-		if (dataStep === 1) {
-			$activeCells = $grid.selectAll(".is-active");
-			$activeCells.each(changeColor(progressToProb(response.progress)));
+	const progToYear = d3.scaleQuantize()
+		.domain([0,1])
+		.range([2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
+			2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020]);
+
+	const progToHectares = d3.scaleLinear()
+		.domain([0,1])
+		.range([0, 2500000]);
+
+	const scientificFormat = d3.format('.3s');
+
+    activateStickyOverlay(scrollId, (response)=>{
+		if (response.step === 0) {
+			$container.select('.annotation')
+				.style('visibility', 'hidden');
+		
+		} else {
+			$container.select('.annotation')
+				.style('visibility', 'visibile');
 		}
+
+	},(response)=>{
+		let dataStep = +d3.select(response.element).attr('data-step');
+		let $activeCells, $inactiveCells;
+		if (dataStep === 1) {
+			$container.select('.annotation__filler')
+				.style('visibility', 'visible');
+			if (response.direction === 'down') {
+				$activeCells = $grid.selectAll(".is-active");
+				$activeCells.each(changeColor(progressToProb(response.progress), true));
+			} else if (response.direction === 'up') {
+				$inactiveCells = $grid.selectAll(".is-inactive");
+				$inactiveCells.each(changeColor(progressToProb(1 - response.progress), false));
+			}
+
+			$container.select('.annotation__hectares')
+				.transition()
+				.text(`${scientificFormat(progToHectares(response.progress))}`);
+			$container.select('.annotation__year')
+				.transition()
+				.text(`by ${progToYear(response.progress)}`);
+		}
+
+
 	});
    
 }
@@ -265,6 +336,14 @@ function activateScrollyMapbox(scrollId, mapId) {
 		map.setFilter('elc-1u2udn', helper.generateLayerFilter('TYPE', ["elc"]));
 	});
 	activateStickyOverlay(scrollId, handleStepEnter.mapbox_scroll(map));
+
+	const resizeObserver = new ResizeObserver(()=>{
+		map.fitBounds([
+			[107.69050, 14.76553], // northeastern corner
+			[101.67842, 10.33006] // southwestern corner
+		]);
+	});
+	resizeObserver.observe(document.body);
 }
 
 function activateStickyOverlay(containerId, stepEnterFunc, stepProgressFunc=()=>(true)) {
@@ -322,7 +401,6 @@ function activateStickyOverlay(containerId, stepEnterFunc, stepProgressFunc=()=>
 
 		// 2. setup the scrollama instance
 		// 3. bind scrollama event handlers (this can be chained like below)
-		console.log("Set up a scroller at container", containerId, "with func", stepEnterFunc);
 		scroller
 			.setup({
 				parent: document.querySelector(`#${containerId} > .scroll__text`), // our outermost scrollytelling element
