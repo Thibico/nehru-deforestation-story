@@ -259,9 +259,8 @@ function activateFluxGrid(scrollId, graphicId) {
 		}
 	}
 
-	var progressToProb = d3.scalePow()
-		.exponent(2)
-		.domain([0,0.75])
+	var progressToProb = d3.scaleLinear()
+		.domain([0,1])
 		.range([0,1]);
 
 	const progToYear = d3.scaleQuantize()
@@ -287,16 +286,46 @@ function activateFluxGrid(scrollId, graphicId) {
 
 	},(response)=>{
 		let dataStep = +d3.select(response.element).attr('data-step');
-		let $activeCells, $inactiveCells;
+
 		if (dataStep === 1) {
+			var $activeCells = $grid.selectAll(".is-active");
+			var $inactiveCells = $grid.selectAll(".is-inactive");
+			let totalCells = $inactiveCells.size() + $activeCells.size()
+			var progToInactive = d3.scaleLinear()
+				.domain([0,1])
+				.range([0, totalCells]);
+			let numInactive = $inactiveCells.size();
+			let numShouldInactive = progToInactive(response.progress);
+
+			console.log("inactive", numInactive, "shouldInactive", numShouldInactive, "active", $activeCells.size());
+			let cellsToDeactivate = Float64Array.from({length: numShouldInactive - numInactive},
+				d3.randomInt(0, $activeCells.size()));
+			let cellsToActivate = Float64Array.from({length: numInactive - numShouldInactive},
+				d3.randomInt(0, $inactiveCells.size()));
+			console.log(cellsToDeactivate);
+			
 			$container.select('.annotation__filler')
 				.style('visibility', 'visible');
+			let filterFunc;
+			if (response.progress < 1.0) {
+				filterFunc = (d,i) => cellsToDeactivate.includes(i);
+			} else {
+				filterFunc = (d,i) => (true);
+			}
 			if (response.direction === 'down') {
-				$activeCells = $grid.selectAll(".is-active");
-				$activeCells.each(changeColor(progressToProb(response.progress), true));
+				$activeCells
+					.filter(filterFunc)
+					.each(changeColor(progressToProb(1.0), true));
 			} else if (response.direction === 'up') {
-				$inactiveCells = $grid.selectAll(".is-inactive");
-				$inactiveCells.each(changeColor(progressToProb(1 - response.progress), false));
+				let upFilterFunc;
+				if (response.progress === 0) {
+					upFilterFunc = (d,i) => (true);
+				} else {
+					upFilterFunc = (d,i) => cellsToActivate.includes(i);
+				}
+				$inactiveCells
+					.filter(upFilterFunc)
+					.each(changeColor(progressToProb(1.0, false)));
 			}
 
 			$container.select('.annotation__hectares')
