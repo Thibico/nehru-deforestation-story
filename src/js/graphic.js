@@ -17,13 +17,11 @@ function init() {
 
 function d3Test() {
 	d3.selectAll('.story-text');
-	console.log('happy!');
 }
 
 const handleStepEnter = {
 	'image_swap': function (info) {
 		return function (response) {
-			console.log("ENTERED IMAGE FUNC");
 			// response = { element, direction, index }
 			var $step = d3.select(`#${info.scroll_id}`)
 				.select('.scroll__text')
@@ -286,6 +284,7 @@ function activateFluxGrid(scrollId, graphicId) {
 
 	},(response)=>{
 		let dataStep = +d3.select(response.element).attr('data-step');
+		console.log(`progress index(${response.index}), progress(${response.progress})`);
 
 		if (dataStep === 1) {
 			var $activeCells = $grid.selectAll(".is-active");
@@ -297,12 +296,12 @@ function activateFluxGrid(scrollId, graphicId) {
 			let numInactive = $inactiveCells.size();
 			let numShouldInactive = progToInactive(response.progress);
 
-			console.log("inactive", numInactive, "shouldInactive", numShouldInactive, "active", $activeCells.size());
+			//console.log("inactive", numInactive, "shouldInactive", numShouldInactive, "active", $activeCells.size());
 			let cellsToDeactivate = Float64Array.from({length: numShouldInactive - numInactive},
 				d3.randomInt(0, $activeCells.size()));
 			let cellsToActivate = Float64Array.from({length: numInactive - numShouldInactive},
 				d3.randomInt(0, $inactiveCells.size()));
-			console.log(cellsToDeactivate);
+			//console.log(cellsToDeactivate);
 			
 			$container.select('.annotation__filler')
 				.style('visibility', 'visible');
@@ -335,8 +334,6 @@ function activateFluxGrid(scrollId, graphicId) {
 				.transition()
 				.text(`by ${progToYear(response.progress)}`);
 		}
-
-
 	});
    
 }
@@ -445,7 +442,6 @@ function activateStickyOverlay(containerId, stepEnterFunc, stepProgressFunc=()=>
 			//.onContainerEnter(handleContainerEnter)
 			//.onContainerExit(handleContainerExit);
 		// setup resize event
-		console.log("scroller", scroller);
 		window.addEventListener('resize', handleResize);
 	}
 
