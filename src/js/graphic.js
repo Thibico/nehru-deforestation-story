@@ -11,9 +11,7 @@ const stickyOverlayInfoArr = data.sections
 
 function resize() { }
 
-function init() {
-	console.log('Make something!');
-}
+function init() { }
 
 function d3Test() {
 	d3.selectAll('.story-text');
@@ -22,6 +20,7 @@ function d3Test() {
 const handleStepEnter = {
 	'image_swap': function (info) {
 		return function (response) {
+			console.trace("Image step entered");
 			// response = { element, direction, index }
 			var $step = d3.select(`#${info.scroll_id}`)
 				.select('.scroll__text')
@@ -284,7 +283,7 @@ function activateFluxGrid(scrollId, graphicId) {
 
 	},(response)=>{
 		let dataStep = +d3.select(response.element).attr('data-step');
-		console.log(`progress index(${response.index}), progress(${response.progress})`);
+		console.trace(`progress index(${response.index}), progress(${response.progress})`);
 
 		if (dataStep === 1) {
 			var $activeCells = $grid.selectAll(".is-active");
@@ -296,12 +295,10 @@ function activateFluxGrid(scrollId, graphicId) {
 			let numInactive = $inactiveCells.size();
 			let numShouldInactive = progToInactive(response.progress);
 
-			//console.log("inactive", numInactive, "shouldInactive", numShouldInactive, "active", $activeCells.size());
 			let cellsToDeactivate = Float64Array.from({length: numShouldInactive - numInactive},
 				d3.randomInt(0, $activeCells.size()));
 			let cellsToActivate = Float64Array.from({length: numInactive - numShouldInactive},
 				d3.randomInt(0, $inactiveCells.size()));
-			//console.log(cellsToDeactivate);
 			
 			$container.select('.annotation__filler')
 				.style('visibility', 'visible');
@@ -387,7 +384,7 @@ function activateStickyOverlay(containerId, stepEnterFunc, stepProgressFunc=()=>
 	// resize function to set dimensions on load and on page resize
 	function handleResize() {
 		// 1. update height of step elements for breathing room between steps
-		var stepHeight = Math.floor(window.innerHeight * 1.0);
+		var stepHeight = Math.floor(window.innerHeight * 0.75 );
 		$step.style('height', stepHeight + 'px');
 
 		// 2. update height of graphic element
@@ -435,7 +432,8 @@ function activateStickyOverlay(containerId, stepEnterFunc, stepProgressFunc=()=>
 				step: '.scroll__text .step', // the step elements
 				progress: true,
 				offset: 0.75, // set the trigger to be X way down screen
-				debug: false, // display the trigger offset for testing
+				debug: true, // display the trigger offset for testing
+				root: document
 			})
 			.onStepEnter(stepEnterFunc)
 			.onStepProgress(stepProgressFunc);
