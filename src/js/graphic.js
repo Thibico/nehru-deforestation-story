@@ -432,7 +432,7 @@ function activateStickyOverlay(containerId, stepEnterFunc, stepProgressFunc=()=>
 				step: '.scroll__text .step', // the step elements
 				progress: true,
 				offset: 0.75, // set the trigger to be X way down screen
-				debug: true, // display the trigger offset for testing
+				debug: false, // display the trigger offset for testing
 				root: document
 			})
 			.onStepEnter(stepEnterFunc)
