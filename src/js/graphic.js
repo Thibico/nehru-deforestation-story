@@ -202,14 +202,14 @@ function activateFluxGrid(scrollId, graphicId) {
 
 		var $annotation = $svg.append('g')
 			.classed('.annotation', true);
-		var $hectares = $annotation.append('text')
+		let $hectares = $annotation.append('text')
 			.classed('section-title', true)
 			.classed('annotation__hectares', true)
 			.attr('x', boxLocationX)
 			.attr('y', boxLocationY + cellHeight*boxHeight + 4*boxStroke)
 			.style('fill', '#b92025')
 			.style('font-size', '2rem');
-		$annotation.append('text')
+		let $filler = $annotation.append('text')
 			.classed('section-title', true)
 			.classed('annotation__filler', true)
 			.attr('x', boxLocationX)
@@ -218,13 +218,15 @@ function activateFluxGrid(scrollId, graphicId) {
 			.style('font-size', '1rem')
 			.style('fill', '#b92025')
 			.style('visibility', 'hidden');
-		var $year = $annotation.append('text')
+		let $year = $annotation.append('text')
 			.classed('section-title', true)
 			.classed('annotation__year', true)
 			.attr('x', boxLocationX)
 			.attr('y', boxLocationY + cellHeight*boxHeight + 8*boxStroke)
 			.style('fill', '#b92025')
 			.style('font-size', '1rem');
+
+		console.log('svgTest', $hectares.node().getComputedTextLength(), $hectares.attr('y'), $year.node().getComputedTextLength(), $year.attr('y'));
 	}
 	redraw();
 	//window.addEventListener("resize", redraw);
@@ -283,7 +285,6 @@ function activateFluxGrid(scrollId, graphicId) {
 
 	},(response)=>{
 		let dataStep = +d3.select(response.element).attr('data-step');
-		console.trace(`progress index(${response.index}), progress(${response.progress})`);
 
 		if (dataStep === 1) {
 			var $activeCells = $grid.selectAll(".is-active");
@@ -351,6 +352,7 @@ function activateScrollyMapbox(scrollId, mapId) {
 		position: 'top-left'
 	}));
 	map.scrollZoom.disable();
+	map.dragPan.disable();
 	map.on('load', () => {
 		map.fitBounds([
 			[107.69050, 14.76553], // northeastern corner
