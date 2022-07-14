@@ -351,8 +351,11 @@ function activateScrollyMapbox(scrollId, mapId) {
 		compact: true,
 		position: 'top-left'
 	}));
-	map.scrollZoom.disable();
-	map.dragPan.disable();
+
+	// Disable map interactions
+	let interactions = ['scrollZoom', 'boxZoom', 'dragRotate', 'dragPan', 'keyboard', 'doubleClickZoom', 'touchZoomRotate'];
+	interactions.forEach((i) => map[i].disable());
+
 	map.on('load', () => {
 		map.fitBounds([
 			[107.69050, 14.76553], // northeastern corner
