@@ -129,7 +129,7 @@ function activateFluxGrid(scrollId, graphicId) {
 		$container.selectAll("*").remove();
 		$svg = $container.append('svg');
 		$grid = $svg.append('g');
-		const width = window.innerWidth * 0.9;
+		const width = d3.select('html').node().clientWidth * 1.0;
 		const height = window.innerHeight;
 		
 		//const width = (cellSize + options.cellPadding) * options.rowSize;
