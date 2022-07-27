@@ -340,7 +340,7 @@ function activateScrollyMapbox(scrollId, mapId) {
 	mapboxgl.accessToken = 'pk.eyJ1IjoidGhpYmktbHVtaW4iLCJhIjoiY2wzd25iZGdnMGJhcDNqbW11YjE3dHB3bSJ9.OJAc_-pM0gYlnF95F0RLWw';
 	var map = new mapboxgl.Map({
 		container: mapId, // container ID
-		style: 'mapbox://styles/thibi-lumin/cl3wo5akm000p14mlzku00y1j/draft', // style URL
+		style: 'mapbox://styles/thibi-lumin/cl3wo5akm000p14mlzku00y1j', // style URL
 		center: { lon: 105.05764, lat: 12.48046 },
 		zoom: 6.25,
 		pitch: 0.00,
@@ -353,7 +353,7 @@ function activateScrollyMapbox(scrollId, mapId) {
 	}));
 
 	// Disable map interactions
-	let interactions = ['scrollZoom', 'boxZoom', 'dragRotate', 'dragPan', 'keyboard', 'doubleClickZoom', 'touchZoomRotate'];
+	let interactions = ['scrollZoom', 'boxZoom', 'dragRotate', 'dragPan', 'keyboard', 'doubleClickZoom', 'touchZoomRotate', 'touchPitch'];
 	interactions.forEach((i) => map[i].disable());
 
 	map.on('load', () => {
